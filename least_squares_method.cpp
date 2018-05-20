@@ -6,7 +6,7 @@
 #include <numeric>
 
 const double EPS = .0001;
-const unsigned int MAX_ORDER = 10;
+const unsigned int MAX_ORDER = 5;
 
 // prototype declaration
 std::vector<std::vector<double>> gauss_jordan(std::vector<std::vector<double>> coeffs, std::vector<std::vector<double>> values);
@@ -95,17 +95,27 @@ std::vector<double> least_squares(std::vector<std::vector<double>> points, unsig
 
 double coeffs_determination(std::vector<std::vector<double>> points, std::vector<double> predicted_points){
 	std::vector<double> v1,v2;
-	unsigned int min_loop = std::min(points.size(), predicted_points.size());
+	// get average
 	double average;
 	for (unsigned int i = 0; i < points.size(); i++){
 		average += points[i][1];
 	}
 	average /= points.size();
 
+	//get predicted function
+	auto predicted_function = [](double x, std::vector<double> coeffs) -> double{
+		double y = 0;
+		for(unsigned int order = 0; order < coeffs.size(); order++){
+			y += coeffs[order] * std::pow(x, order);
+		}
+		return y;
+	};
+
 	// get something like variance
-	for (unsigned int i = 0; i < min_loop; i++){
-		v1.push_back(std::pow(points[i][1] - predicted_points[i], 2));
+	for (unsigned int i = 0; i < points.size(); i++){
+		v1.push_back(std::pow(points[i][1] - predicted_function(points[i][0], predicted_points), 2));
 		v2.push_back(std::pow(points[i][1] - average, 2));
+		printf("v1:%lf\tv2:%lf\n", v1[i], v2[i]);
 	}
 	return 1 - (std::accumulate(v1.begin(), v1.end(), 0.0) / std::accumulate(v2.begin(), v2.end(), 0.0));
 }
