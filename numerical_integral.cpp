@@ -12,8 +12,8 @@
 #include <iterator>
 #include <functional>
 
-const unsigned int MIN_TRY = 30;
-const unsigned int MAX_TRY = 60;
+const unsigned int MIN_TRY = 5;
+const unsigned int MAX_TRY = 16;
 
 //prototype declaration
 double trapezoidalRule(std::function<double(double)> func, double start, double end, unsigned int numberInterval); // 台形公式
@@ -30,10 +30,10 @@ int main(int argc, char const *argv[]){
 				simpsonValue = 0.0;
 	for(unsigned int N = MIN_TRY; N <= MAX_TRY; N++){
 		printf("[step N=%d]\n", N);
-		trapezoidalValue = trapezoidalRule(func_y, xa, xb, N);
-		simpsonValue = simpsonRule(func_y, xa, xb, N);
-		printf("trapezoidal rule ans:%8.4lf\n", trapezoidalValue);
-		printf("Simpson's rule ans:%8.4lf\n", simpsonValue);
+		trapezoidalValue = trapezoidalRule(func_y, xa, xb, std::pow(2, N));
+		simpsonValue = simpsonRule(func_y, xa, xb, std::pow(2, N));
+		printf("trapezoidal rule ans:%11.10lf\n", trapezoidalValue);
+		printf("Simpson's rule ans:%11.10lf\n", simpsonValue);
 	}
 	return 0;
 }
