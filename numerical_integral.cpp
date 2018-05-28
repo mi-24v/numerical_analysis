@@ -12,12 +12,18 @@
 #include <iterator>
 #include <functional>
 
+// if you want to save data into *.csv, define it.
+#define DUMP_CSV
+
 const unsigned int MIN_TRY = 5;
 const unsigned int MAX_TRY = 16;
 
 //prototype declaration
 double trapezoidalRule(std::function<double(double)> func, double start, double end, unsigned int numberInterval); // 台形公式
 double simpsonRule(std::function<double(double)> func, double start, double end, unsigned int numberInterval); // シンプソンの公式
+#ifdef DUMP_CSV
+void dump_data(unsigned int N, double trapezoidalValue, double simpsonValue);
+#endif
 
 int main(int argc, char const *argv[]){
 	//input function
@@ -29,14 +35,24 @@ int main(int argc, char const *argv[]){
 	double trapezoidalValue = 0.0,
 				simpsonValue = 0.0;
 	for(unsigned int N = MIN_TRY; N <= MAX_TRY; N++){
-		printf("[step N=%d]\n", N);
 		trapezoidalValue = trapezoidalRule(func_y, xa, xb, std::pow(2, N));
 		simpsonValue = simpsonRule(func_y, xa, xb, std::pow(2, N));
+		#ifdef DUMP_CSV
+			dump_data(N, trapezoidalValue, simpsonValue);
+		#else
+		printf("[step N=%d]\n", N);
 		printf("trapezoidal rule ans:%11.10lf\n", trapezoidalValue);
 		printf("Simpson's rule ans:%11.10lf\n", simpsonValue);
+		#endif
 	}
 	return 0;
 }
+
+#ifdef DUMP_CSV
+void dump_data(unsigned int N, double trapezoidalValue, double simpsonValue){
+	printf("%d,%11.10lf,%11.10lf\n", N, trapezoidalValue, simpsonValue);
+}
+#endif
 
 double trapezoidalRule(std::function<double(double)> func, double start, double end, unsigned int numberInterval){
 	// number of steps
