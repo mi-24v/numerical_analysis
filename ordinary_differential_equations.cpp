@@ -68,11 +68,16 @@ int main(int argc, char const *argv[]){
 				end = 10.0,
 				step = 0.01,
 				cycle = 1.0;
-	RunngeKutta rk(RKStage::RK4);
+	RunngeKutta rk2(RKStage::RK2), rk4(RKStage::RK4);
 	std::vector<std::pair<double, double>> euler_values = forward_euler_method(func_ff, start, end, step, cycle);
-	auto rk4_values = rk.runge_kutta_method(func_fff, start, end, step, cycle);
+	auto rk2_values = rk2.runge_kutta_method(func_fff, start, end, step, cycle);
+	auto rk4_values = rk4.runge_kutta_method(func_fff, start, end, step, cycle);
 	printf("  X\t  Y\t\n");
 	for(std::pair<double, double> point : euler_values){
+		printf("%7.4lf %7.4lf\n", point.first, point.second);
+	}
+	printf("  X\t  Y\t\n");
+	for(std::pair<double, double> point : rk2_values){
 		printf("%7.4lf %7.4lf\n", point.first, point.second);
 	}
 	printf("  X\t  Y\t\n");
@@ -108,19 +113,19 @@ const std::string RunngeKutta::RK_matrix = "RK_matrix",
 const std::unordered_map<std::string, std::vector<double>> RunngeKutta::RK1 = {
 		{RK_matrix, {0}},
 		{RK_weights, {1}},
-		{RK_nodes, {2}}
+		{RK_nodes, {0}}
 	};
 //2nd-stage runnge-kutta
-//FIXME maybe invalid..?
 const std::unordered_map<std::string, std::vector<double>> RunngeKutta::RK2 = {
 	{RK_matrix, {0, 1}},
 	{RK_weights, {0.5, 0.5}},
 	{RK_nodes, {0, 1}}
 };
 //4th-stage runnge-kutta
+//FIXME maybe invalid..?
 const std::unordered_map<std::string, std::vector<double>> RunngeKutta::RK4 = {
 	{RK_matrix, {0, 0.5, 0.5, 1}},
-	{RK_weights, {1/6, 1/3, 1/6, 1/3}},
+	{RK_weights, {1/6, 1/3, 1/3, 1/6}},
 	{RK_nodes, {0, 0.5, 0.5, 1}}
 };
 
@@ -156,7 +161,7 @@ std::vector<std::pair<double, double>> RunngeKutta::runge_kutta_method(std::func
 			values.push_back(point);
 		}
 		// obtain approximations.
-		for(unsigned int i = 0; i < std::min(rk_coeffs[RK_weights].size(), rk_coeffs[RK_nodes].size()); i++){
+		for(unsigned int i = 0; i < std::min(rk_coeffs[RK_matrix].size(), rk_coeffs[RK_nodes].size()); i++){
 			double y_value =
 				i == 0?
 				y + step * rk_coeffs[RK_matrix][i]:
@@ -165,8 +170,8 @@ std::vector<std::pair<double, double>> RunngeKutta::runge_kutta_method(std::func
 		}
 		// apply
 		double sum = 0;
-		for(unsigned int i = 0; i < rk_coeffs[RK_nodes].size(); i++){
-			sum += step * rk_coeffs[RK_nodes][i] * approximations[i];
+		for(unsigned int i = 0; i < rk_coeffs[RK_weights].size(); i++){
+			sum += step * rk_coeffs[RK_weights][i] * approximations[i];
 		}
 
 		y += sum;
